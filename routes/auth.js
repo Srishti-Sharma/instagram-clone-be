@@ -5,10 +5,6 @@ const mongoose = require("mongoose");
 const User = mongoose.model("User");
 const bcrypt = require("bcryptjs");
 
-router.get("/", (req, res) => {
-  res.send("Welcome Home");
-});
-
 router.post("/signup", (req, res) => {
   const { email, name, password } = req.body;
   // console.log("req.body ", req.body);
@@ -42,6 +38,34 @@ router.post("/signup", (req, res) => {
     })
     .catch((error) => {
       console.log("Error ", error);
+    });
+});
+
+router.post("/signin", (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.json({ message: "Please add email and password" });
+  }
+  User.findOne({ email })
+    .then((savedUser) => {
+      if (!savedUser) {
+        return res.status(422).json({ error: "Invalid email or password" });
+      }
+      bcrypt
+        .compare(password, savedUser.password)
+        .then((didPasswordMatch) => {
+          if (didPasswordMatch) {
+            res.json({ message: "Signin success" });
+          } else {
+            res.status(422).json({ error: "Invalid email or password" });
+          }
+        })
+        .catch((error) => {
+          console.log("catched error: ", error);
+        });
+    })
+    .catch((error) => {
+      console.log("inside catch ", error);
     });
 });
 
