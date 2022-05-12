@@ -22,14 +22,15 @@ router.get("/allposts", requireLogin, (req, res) => {
 
 // for creating a post
 router.post("/createpost", requireLogin, (req, res) => {
-  const { title, description } = req.body;
-  if (!title || !description) {
+  const { title, description, image_url } = req.body;
+  if (!title || !description || !image_url) {
     return res.status(422).json({ error: "Please fill all the fields" });
   }
   req.user.password = undefined;
   const post = new Post({
     title,
     description,
+    photo: image_url,
     postedBy: req.user,
   });
   post
