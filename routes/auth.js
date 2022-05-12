@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const router = express.Router();
 const mongoose = require("mongoose");
 
@@ -8,6 +9,8 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../keys");
 
 const requireLogin = require("../middleware/requireLogin");
+
+router.use(cors());
 
 router.post("/signup", (req, res) => {
   const { email, name, password } = req.body;
@@ -61,7 +64,14 @@ router.post("/signin", (req, res) => {
           if (didPasswordMatch) {
             // res.json({ message: "Signin success" });
             const token = jwt.sign({ _id: savedUser._id }, JWT_SECRET);
-            res.json({ token });
+            res.json({
+              token,
+              user: {
+                id: savedUser._id,
+                name: savedUser.name,
+                email: savedUser.email,
+              },
+            });
           } else {
             res.status(422).json({ error: "Invalid email or password" });
           }
